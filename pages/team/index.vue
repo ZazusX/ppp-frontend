@@ -1,5 +1,8 @@
 <template>
   <article :class="'show-' + show">
+    <pre>
+    <!-- {{showProfile}} -->
+  </pre>
     <Transition>
       <a
         v-if="showCV || showPub"
@@ -59,7 +62,7 @@
         <div v-if="!showCV && !showPub && showProfile">
           <div v-html="formatRte(showProfile.attributes.Basic_info)"></div>
           <br />
-          {{ showProfile.attributes.Telephone }}<br />
+          <span v-html="breakIfSlash(showProfile.attributes.Telephone) "></span><br />
           {{ showProfile.attributes.Email }}<br />
           <br />
         </div>
@@ -71,18 +74,19 @@
       </Transition>
       <Transition>
         <div v-if="showCV">
-          <h1>WERDEGANG</h1>
+          <h1>{{$t('werdegang')}}</h1>
           <div v-html="formatRte(showProfile.attributes.CV)"></div>
         </div>
       </Transition>
       <Transition>
         <div v-if="showPub">
-          <h1>PUBLIKATIONEN</h1>
+          <h1>{{$t('publikationen')}}</h1>
           <div
             class="downloads"
             v-if="showProfile.attributes.Downloads !== null"
           >
             <template v-for="download in showProfile.attributes.Downloads">
+   
               <template v-if="download.Pdf.data !== null">
                 <a
                   :key="download.id"
@@ -128,18 +132,20 @@
           class="switch"
           v-if="showProfile && showProfile.attributes.CV"
           @click="showCV = !showCV"
-          >WERDEGANG ></a
+          >{{$t('werdegang')}} ></a
         ><br />
         <br />
         <a
           class="switch"
           v-if="showProfile && showProfile.attributes.Publications"
           @click="showPub = !showPub"
-          >PUBLIKATIONEN ></a
+          >{{$t('publikationen')}} ></a
         >
       </div>
+
     </aside>
   </article>
+
 </template>
 
 <script>
@@ -164,7 +170,8 @@ export default {
   methods: {
     async fetchContents() {
       const getProfiles = await axios.get(
-        "https://api.ppp.co.at//api/profiles?populate=deep"
+        "https://api.ppp.co.at//api/profiles?populate=deep&locale=" +
+          this.$i18n.locale
       );
       this.profiles = getProfiles.data.data;
     },
@@ -182,6 +189,9 @@ export default {
         return "";
       }
     },
+    breakIfSlash(str){
+      return str.replace(/\//g, '<br>') + '<br>'
+    }
   },
   async mounted() {
     await this.fetchContents();
@@ -191,10 +201,12 @@ export default {
   },
   computed: {
     showProfile() {
+      
       if (this.profiles == null) return false;
       let filtered_profiles = this.profiles;
+      
       let profile = filtered_profiles.filter((e) => {
-        return e.attributes.Slug === this.$route.params.team;
+        return e.attributes.Slug === this.$route.fullPath.split("/").at(-1);
       });
       this.title =
         "PPP - " + profile[0].attributes.Profile_title.replace(/\/n/g, "");

@@ -61,7 +61,6 @@ main {
   padding: 10px 20px 0;
   border: 1px solid #cbcbcb;
   width: 100%;
-  transform-origin: left top;
 }
 .logo {
   width: 122px;
@@ -502,8 +501,8 @@ time {
     position: relative;
     width: 1436px;
     height: 907px;
-    margin-top: 0;
-    margin-left: 0;
+    margin-top: calc((100vh - 907px * clamp(0.5, var(--zoom), 2)) / 2);
+    margin-left: calc((100vw - 1436px * clamp(0.5, var(--zoom), 2)) / 2);
     border: 1px solid #cbcbcb;
     padding: 45px 0 0 53px;
     transform: scale(clamp(0.5, var(--zoom), 2));
@@ -699,11 +698,11 @@ time {
     opacity: 1;
   }
   .menu {
-    font-size: 16px;
-    margin-top: 20px;
+    /* font-size: 16px;
+    margin-top: 20px; */
     line-height: 30px;
-    position: absolute;
-    bottom: 50px;
+    position: relative;
+    /* bottom: 50px; */
   }
 }
 
@@ -754,5 +753,12 @@ time {
   }
   .profile {
     order: 0;
+  }
+  main div:not([class]) br {
+    display: none;
+  }
+  .page-rechtsgebiete main div:not([class]) p:last-child br,
+  .page-team main div:not([class]) p:last-child br {
+    display: unset;
   }
 }

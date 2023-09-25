@@ -2,12 +2,12 @@
   <article :class="'show-' + show">
     <main v-if="show">
       <time>
-        {{ new Date(newsDetail.attributes.createdAt).getFullYear() }}-{{
-          new Date(newsDetail.attributes.createdAt).getMonth() + 1
-        }}-{{ new Date(newsDetail.attributes.createdAt).getDate() }}
+        {{ new Date(newsDetail.attributes.Datum).getFullYear() }}-{{
+          new Date(newsDetail.attributes.Datum).getMonth() + 1
+        }}-{{ new Date(newsDetail.attributes.Datum).getDate() }}
       </time>
       <h1 v-html="formatTitle(newsDetail.attributes.Title)"></h1>
-      <div v-html="formatRte(newsDetail.attributes.Text)"></div>
+      <div v-html="newsDetail.attributes.Text"></div>
       <p>
         <br />
         <NuxtLink to="/news/">&lt; Zurück</NuxtLink>
@@ -18,14 +18,16 @@
 
 <script>
 import axios from "axios";
-import { marked } from "marked";
-marked.use({
-  gfm: true,
-  breaks: true,
-});
+
 export default {
   name: "news",
   layout: "news",
+  // nuxtI18n: {
+  //   paths: {
+  //     de: "/news/:news",
+  //     en: "/news/:news",
+  //   },
+  // },
   data() {
     return {
       title: "",
@@ -36,17 +38,11 @@ export default {
   methods: {
     async fetchContents() {
       const getNews = await axios.get(
-        "https://api.ppp.co.at/api/news?populate=*"
+        "https://api.ppp.co.at/api/news?populate=*&locale=" + this.$i18n.locale
       );
       this.news = getNews.data.data;
     },
-    formatRte(str) {
-      if (str !== null && str !== undefined) {
-        return marked(str);
-      } else {
-        return "";
-      }
-    },
+
     formatTitle(str) {
       if (str !== null && str !== undefined) {
         return str.replace(/\/n/g, "<br />");
@@ -66,7 +62,8 @@ export default {
       if (this.news == null) return false;
       let filtered_news = this.news;
       let article = filtered_news.filter((e) => {
-        return e.attributes.Slug === this.$route.params.news;
+        // return e.attributes.Slug === this.$route.params.news;
+        return e.attributes.Slug === this.$route.fullPath.split("/").at(-1);
       });
       this.title = "PPP - " + article[0].attributes.Title.replace(/\/n/g, "");
       return article[0];
